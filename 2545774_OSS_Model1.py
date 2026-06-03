@@ -38,3 +38,33 @@ acc = accuracy_score(y_test, y_pred)
 print("\n[모델 1 - 기본 파라미터 (n_estimators=100)]")
 print(f"정확도: {acc * 100:.2f}%")
 print(classification_report(y_test, y_pred, target_names=data.target_names))
+
+# [4] 하이퍼파라미터 조정 후 재학습
+# 트리 수 늘리기 & 과적합 방지를 위해 ---> max_depth 제한
+rf_model2 = RandomForestClassifier(
+    n_estimators=200,      # 트리 수 증가
+    max_depth=10,          # 트리 깊이 제한 ---> 과적합 방지
+    min_samples_split=5,   # 분기 조건 강화
+    random_state=42
+)
+rf_model2.fit(X_train, y_train)
+
+y_pred2 = rf_model2.predict(X_test)
+acc2 = accuracy_score(y_test, y_pred2)
+
+print("[모델 2 - 파라미터 조정 (n_estimators=200, max_depth=10)]")
+print(f"정확도: {acc2 * 100:.2f}%")
+print(classification_report(y_test, y_pred2, target_names=data.target_names))
+
+# [5] 두 모델 정확도 비교
+print("[모델 성능 비교하기]")
+print(f"모델 1 정확도 : {acc * 100:.2f}%")
+print(f"모델 2 정확도 : {acc2 * 100:.2f}%")
+
+# [6] 중요 특징 상위 5개 출력
+importances = rf_model2.feature_importances_
+top5_idx = np.argsort(importances)[::-1][:5]
+
+print("\n[분류에 중요한 특징 Top 5]")
+for rank, idx in enumerate(top5_idx, 1):
+    print(f"  {rank}위. {data.feature_names[idx]} ({importances[idx]:.4f})")
